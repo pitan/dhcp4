@@ -67,9 +67,11 @@ func Serve(conn ServeConn, handler Handler) error {
 				return err
 			}
 
+			port, _ := strconv.Atoi(portStr)
 			if net.ParseIP(ipStr).Equal(net.IPv4zero) || req.Broadcast() {
-				port, _ := strconv.Atoi(portStr)
 				addr = &net.UDPAddr{IP: net.IPv4bcast, Port: port}
+			} else if !req.GIAddr().Equal(net.IPv4zero) {
+				addr = &net.UDPAddr{IP: req.GIAddr(), Port: port}
 			}
 			if _, e := conn.WriteTo(res, addr); e != nil {
 				return e
